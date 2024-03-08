@@ -1,0 +1,35 @@
+<html>
+<script language="javascript">
+    var connection = new WebSocket('ws://localhost:8080/testing');
+    connection.onopen = function(){
+        console.log('Connection open!');
+        connection.send('Hey server, whats up?');
+    }
+    connection.onclose = function(){
+        console.log('Connection closed');
+    }
+    connection.onmessage = function(e){
+        var server_message = e.data;
+        console.log(server_message);
+        document.getElementById("result").innerHTML += server_message + "<br>";
+    }
+
+    function sendMessage() {
+        var message = document.getElementById("messageInput").value;
+        connection.send(message);
+        document.getElementById("messageInput").value = ""; // Limpa o campo de entrada após o envio
+    }
+</script>
+<body>
+
+    <form>
+        <div id="result"></result>  
+    </form>
+
+    
+    <form>
+        <input type="text" id="messageInput">
+        <button type="button" onclick="sendMessage()">Send</button>
+    </form>
+</body>
+</html>
