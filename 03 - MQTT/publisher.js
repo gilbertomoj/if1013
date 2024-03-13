@@ -1,21 +1,41 @@
 const mqtt = require('mqtt')
 const client = mqtt.connect('mqtt://broker.hivemq.com')
-var interval = setInterval(() => {
+var http = require("http");
+
+var interval = setInterval( function() {
     sendData()
     },2000)
-    client.on('message', () => {
-        console.log('message')
-    }
-)
+
+
+client.on('message', () => {
+console.log('message')
+})
+
 function sendData()
 {
 console.log('publishing')
-// COMPLETE COM O CÓDIGO NECESSÁRIO PARA PUBLICAR O DADO
-// ALEATORIO UTILIZANDO O TOPICO sensores/voltagem
-client.publish('sensores/voltagem',randomInt(0,100).toString())
+
+http.get('http://devices.webofthings.io/pi/sensors/temperature/', {headers: { 'Accept': 'application/json' }}, (response) => {
+    let data = '';
+
+    response.on('data', (chunk) => {
+        data += chunk;
+    });
+
+    response.on('end', () => {
+        const temperatureData = JSON.parse(data)
+        //console.log(temperatureData)
+        client.publish('sensores/voltagem',("Temperature:"+temperatureData.value).toString())
+
+    });
+
+}).on("error", (err) => {
+    console.log("Error: " + err.message);
+});
 
 console.log('published')
 }
+
 function randomInt (low, high) {
 return Math.floor(Math.random() * (high - low) + low);
 }
